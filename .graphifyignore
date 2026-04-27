@@ -1,0 +1,9 @@
+@'
+node_modules/
+.git/
+venv/
+*.log
+*.env
+secrets/
+graphify/cache/
+'@ | Out-File -FilePath .graphifyignore -Encoding utf8
