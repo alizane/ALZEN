@@ -1,0 +1,102 @@
+{
+  "version": "3.0.0",
+  "budget": {
+    "monthly_cap_cents": 1200,
+    "currency": "USD",
+    "hard_stop": false,
+    "rationale": "DeepSeek V3 API only. Infrastructure is $0 (Docker local, free tiers). Estimated ~$12/month for 500 leads/day processing.",
+    "cost_per_lead_estimate_cents": 0.024,
+    "warning_threshold_cents": 1000,
+    "reset_day": 1
+  },
+  "approval_gates": [
+    {
+      "id": "gate-email-send",
+      "name": "Email Send Approval",
+      "description": "Board OR Sales Director must approve email batches before sending via Mailgun.",
+      "approver_roles": ["ceo", "manager"],
+      "required_approvals": 1,
+      "timeout_minutes": 120,
+      "timeout_action": "auto_approve_after_track_record",
+      "auto_approve_after_successful_batches": 7,
+      "notification": "telegram"
+    },
+    {
+      "id": "gate-voice-call",
+      "name": "Voice Call Initiation",
+      "description": "First 20 voice calls require Board approval. After track record, auto-approved.",
+      "approver_roles": ["ceo"],
+      "required_approvals": 1,
+      "timeout_minutes": 60,
+      "timeout_action": "reject",
+      "auto_approve_after_successful_calls": 20,
+      "notification": "telegram"
+    },
+    {
+      "id": "gate-new-agent",
+      "name": "New Agent Hire",
+      "description": "Adding a new agent to the org chart requires Board approval. No timeout — must be manual.",
+      "approver_roles": ["ceo"],
+      "required_approvals": 1,
+      "timeout_minutes": 0,
+      "timeout_action": "reject",
+      "notification": "telegram"
+    },
+    {
+      "id": "gate-budget-override",
+      "name": "Budget Override",
+      "description": "No budget overrides allowed. $0 infrastructure is the hard rule.",
+      "approver_roles": ["ceo"],
+      "required_approvals": 1,
+      "timeout_minutes": 0,
+      "timeout_action": "reject",
+      "enabled": false,
+      "notification": "telegram"
+    },
+    {
+      "id": "gate-skill-modification",
+      "name": "Skill Modification",
+      "description": "Changes to agent skill definitions require Sales Director review within 24hr. Auto-approve on positive track record.",
+      "approver_roles": ["manager"],
+      "required_approvals": 1,
+      "timeout_minutes": 1440,
+      "timeout_action": "auto_approve_on_positive_track_record",
+      "notification": "telegram"
+    },
+    {
+      "id": "gate-high-cost-api",
+      "name": "High-Cost API Call",
+      "description": "Only DeepSeek API is used. Cost is capped by pay-as-you-go billing. Auto-approve.",
+      "approver_roles": ["manager"],
+      "required_approvals": 1,
+      "timeout_minutes": 0,
+      "timeout_action": "auto_approve",
+      "notification": "none"
+    }
+  ],
+  "cost_tracking": {
+    "provider": "deepseek",
+    "model": "deepseek-chat-v3",
+    "pricing": {
+      "input_per_1m_tokens": 0.14,
+      "output_per_1m_tokens": 0.28
+    },
+    "estimated_monthly_usage": {
+      "leads_per_day": 500,
+      "tokens_per_lead": 500,
+      "daily_input_tokens": 250000,
+      "monthly_cost_estimate": 12.00
+    }
+  },
+  "module_budgets": [
+    {"agent": "LeadFinder", "monthly_cents": 200, "covers": "Web scraping infra only (proxies if needed)"},
+    {"agent": "LeadQualifier", "monthly_cents": 200, "covers": "DeepSeek API: 500 leads × 200 tokens"},
+    {"agent": "EnrichmentAnalyst", "monthly_cents": 200, "covers": "DeepSeek API: 500 leads × 300 tokens"},
+    {"agent": "EmailWriter", "monthly_cents": 200, "covers": "DeepSeek API: 500 leads × 500 tokens for A/B variants"},
+    {"agent": "VoiceCloser", "monthly_cents": 200, "covers": "DeepSeek API: call scripts + Google TTS free tier"},
+    {"agent": "ReplyHandler", "monthly_cents": 200, "covers": "DeepSeek API: batch classification"},
+    {"agent": "ALZEN_CEO", "monthly_cents": 0, "covers": "No API costs — strategic coordination only"},
+    {"agent": "SalesDirector", "monthly_cents": 0, "covers": "No API costs — pipeline oversight only"},
+    {"agent": "MemoryManager", "monthly_cents": 0, "covers": "No API costs — runs once weekly"}
+  ]
+}
