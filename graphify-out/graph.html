@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALZEN Knowledge Graph</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, sans-serif; background: #0d1117; color: #c9d1d9; }
+  header { padding: 1rem 2rem; border-bottom: 1px solid #30363d; background: #161b22; }
+  header h1 { font-size: 1.25rem; color: #58a6ff; }
+  header p { font-size: 0.8rem; color: #8b949e; margin-top: 0.25rem; }
+  main { display: flex; height: calc(100vh - 70px); }
+  #sidebar { width: 380px; border-right: 1px solid #30363d; overflow-y: auto; padding: 1rem; background: #0d1117; }
+  #content { flex: 1; padding: 1rem 2rem; overflow-y: auto; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
+  .card:hover { border-color: #58a6ff; }
+  .card .label { font-weight: 600; color: #58a6ff; font-size: 0.9rem; word-break: break-all; }
+  .card .meta { font-size: 0.75rem; color: #8b949e; margin-top: 0.25rem; }
+  .card .edges { font-size: 0.75rem; color: #7ee787; }
+  input[type=search] { width: 100%; padding: 0.5rem 0.75rem; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 0.9rem; margin-bottom: 1rem; }
+  input[type=search]:focus { outline: none; border-color: #58a6ff; }
+  .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #8b949e; margin: 1rem 0 0.5rem; }
+  .status { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status.online { background: #3fb950; }
+  .status.offline { background: #f85149; }
+  #mcp-status { font-size: 0.8rem; margin-bottom: 1rem; }
+  .empty { color: #8b949e; font-style: italic; padding: 1rem 0; }
+  pre { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 1rem; overflow-x: auto; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ALZEN Knowledge Graph</h1>
+  <p>graphify MCP — Phase 06 | <span id="stats">Loading...</span></p>
+</header>
+<main>
+  <div id="sidebar">
+    <div id="mcp-status"><span class="status offline"></span> MCP offline</div>
+    <input type="search" id="search" placeholder="Search nodes (e.g. Platform, LeadFinder, hermes)..." oninput="search()">
+    <div class="section-title">God Nodes (core abstractions)</div>
+    <div id="god-nodes"><div class="empty">Loading...</div></div>
+    <div class="section-title">Search Results</div>
+    <div id="results"><div class="empty">Type a query above</div></div>
+  </div>
+  <div id="content">
+    <h2 style="margin-bottom:1rem">Knowledge Graph Overview</h2>
+    <div id="overview"><div class="empty">Loading from MCP...</div></div>
+    <h2 style="margin:1.5rem 0 1rem">Query Reference</h2>
+    <pre>GET /mcp/query?q=Platform           → Search nodes
+GET /mcp/god-nodes                  → Top 10 most-connected
+GET /mcp/health                     → Service status</pre>
+  </div>
+</main>
+<script>
+const MCP = 'http://127.0.0.1:8889';
+
+async function init() {
+  try {
+    const h = await fetch(MCP + '/mcp/health');
+    if (h.ok) {
+      document.getElementById('mcp-status').innerHTML = '<span class="status online"></span> MCP connected';
+      document.querySelector('.status').className = 'status online';
+    }
+    const g = await fetch(MCP + '/mcp/god-nodes');
+    const gd = await g.json();
+    const gn = gd.god_nodes || [];
+    document.getElementById('stats').textContent = 'God nodes loaded';
+    let html = '';
+    gn.forEach(n => {
+      html += `<div class="card"><div class="label">${esc(n.label)}</div>
+        <div class="meta">${esc(n.id)}</div>
+        <div class="edges">${n.edges.toLocaleString()} edges</div></div>`;
+    });
+    document.getElementById('god-nodes').innerHTML = html || '<div class="empty">No data</div>';
+
+    const i = await fetch(MCP + '/mcp');
+    const info = await i.json();
+    document.getElementById('overview').innerHTML = `
+      <div class="card"><div class="label">Nodes</div><div class="meta">${info.nodes?.toLocaleString() || '?'}</div></div>
+      <div class="card"><div class="label">Links</div><div class="meta">${info.links?.toLocaleString() || '?'}</div></div>
+      <div class="card"><div class="label">Service</div><div class="meta">${info.service} v${info.version}</div></div>`;
+  } catch(e) {
+    document.getElementById('stats').textContent = 'MCP unreachable';
+  }
+}
+
+async function search() {
+  const q = document.getElementById('search').value.trim();
+  if (!q) { document.getElementById('results').innerHTML = '<div class="empty">Type a query above</div>'; return; }
+  try {
+    const r = await fetch(MCP + '/mcp/query?q=' + encodeURIComponent(q));
+    const d = await r.json();
+    const items = d.results || [];
+    if (!items.length) { document.getElementById('results').innerHTML = '<div class="empty">No matches</div>'; return; }
+    let html = `<div class="section-title">${d.total_hits} results</div>`;
+    items.forEach(n => {
+      html += `<div class="card"><div class="label">${esc(n.label)}</div>
+        <div class="meta">${esc(n.source_file || '')} · Community ${n.community}</div></div>`;
+    });
+    document.getElementById('results').innerHTML = html;
+  } catch(e) {
+    document.getElementById('results').innerHTML = '<div class="empty">Search failed</div>';
+  }
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+init();
+</script>
+</body>
+</html>
