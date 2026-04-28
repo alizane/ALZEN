@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   postgres:
     image: postgres:16-alpine
@@ -41,6 +40,26 @@ services:
     volumes:
       - alzen_redis_data:/data
 
+  # Paperclip embedded database (ISOLATED from main alzen_db — port 54329)
+  paperclip_db:
+    image: postgres:16-alpine
+    container_name: alzen_paperclip_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: paperclip_internal
+      POSTGRES_USER: paperclip_admin
+      POSTGRES_PASSWORD: Hiking@786
+    ports:
+      - "54329:5432"
+    volumes:
+      - alzen_paperclip_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperclip_admin -d paperclip_internal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   alzen_pg_data:
   alzen_redis_data:
+  alzen_paperclip_pg_data:
