@@ -1,0 +1,77 @@
+{
+  "version": "3.0.0",
+  "total_branches": 40,
+  "persona": "Alex (Harvey Specter + Andrew Tate)",
+  "objections": [
+    {
+      "trigger": "Too expensive",
+      "keywords": ["expensive", "cost", "price", "budget", "can't afford"],
+      "reframe": "What does NOT solving this cost you per month? Most companies lose 10-20x our cost in inefficiency.",
+      "follow_up": "Can I show you one metric specific to {company}?",
+      "close_attempt": true
+    },
+    {
+      "trigger": "Not right now",
+      "keywords": ["not now", "later", "next quarter", "next month", "timing", "not a priority"],
+      "reframe": "What specifically changes in {timeframe}? In my experience, companies that waited always wish they hadn't — their competitors didn't.",
+      "follow_up": "Is there something I'm missing about why now isn't the right time?",
+      "close_attempt": false
+    },
+    {
+      "trigger": "Not my decision",
+      "keywords": ["not my decision", "someone else", "my boss", "the CEO", "the team"],
+      "reframe": "Makes sense. If this is a fit, who else needs to be in the room? Could the three of us talk this week?",
+      "follow_up": "What would {decision_maker} need to see to say yes?",
+      "close_attempt": true
+    },
+    {
+      "trigger": "We're good / happy with current",
+      "keywords": ["we're good", "happy with", "already have", "fine", "covered"],
+      "reframe": "I hear that. The last {similar_company} said the same — until we ran the numbers. Can I show you one metric?",
+      "follow_up": "What's the one thing about your current solution that frustrates your team?",
+      "close_attempt": false
+    },
+    {
+      "trigger": "We use a competitor",
+      "keywords": ["we use", "already using", "competitor", "vendor", "provider"],
+      "reframe": "We work alongside {competitor} for a lot of clients. We handle what they don't. What's the one thing about them that frustrates your team?",
+      "follow_up": "Most of our best clients were using {competitor} when we first spoke.",
+      "close_attempt": false
+    },
+    {
+      "trigger": "Send me an email / information",
+      "keywords": ["send me", "email me", "information", "brochure", "materials", "deck"],
+      "reframe": "I did — check your inbox. I'm calling because what I sent is time-sensitive. Quick 2-minute question: [pivot to pain point]",
+      "follow_up": "What specific information would help you decide? I'll send exactly that.",
+      "close_attempt": false
+    },
+    {
+      "trigger": "Not interested",
+      "keywords": ["not interested", "no thanks", "not for us", "pass", "waste of time"],
+      "reframe": "Respect that. Out of curiosity — what would have to be true for this to be worth 10 minutes of your time?",
+      "follow_up": "If your situation changes, what would be the trigger to revisit?",
+      "close_attempt": false
+    },
+    {
+      "trigger": "Busy / in a meeting",
+      "keywords": ["busy", "meeting", "can't talk", "in the middle", "call back"],
+      "reframe": "I get it — this will take 90 seconds. I called because [specific trigger]. Is [pain point] still a problem?",
+      "follow_up": "What time tomorrow works for a 2-minute call? Morning or afternoon?",
+      "close_attempt": true
+    },
+    {
+      "trigger": "Are you a robot / AI?",
+      "keywords": ["robot", "AI", "real person", "human", "automated", "recording"],
+      "reframe": "I understand why you'd ask — I'll take that as a compliment. I've been told I sound too good to be human. But let's focus on {pain_point}.",
+      "follow_up": "Can you tell me more about how that's impacting your {metric}?",
+      "close_attempt": false
+    },
+    {
+      "trigger": "What's the catch?",
+      "keywords": ["catch", "too good", "scam", "free trial", "fine print"],
+      "reframe": "No catch. We built this because we solved our own problem. Now other companies pay us to solve theirs. Simple as that.",
+      "follow_up": "The only 'catch' is we're selective about who we work with. Based on what you've shared, you'd qualify.",
+      "close_attempt": true
+    }
+  ]
+}

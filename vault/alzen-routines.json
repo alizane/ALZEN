@@ -1,0 +1,106 @@
+{
+  "version": "3.0.0",
+  "company": "ALZEN",
+  "paperclip_url": "http://localhost:3100",
+  "routines": [
+    {
+      "id": "routine-lead-discovery",
+      "name": "Lead Discovery",
+      "trigger": "0 6 * * *",
+      "trigger_human": "Daily 6am",
+      "agent": "LeadFinder",
+      "description": "Multi-source B2B lead discovery — web scraping (200/day), public APIs (Angel List, Product Hunt, LinkedIn jobs), email pattern matching, funding RSS. Target: 300-500 new leads/day.",
+      "module": "modules/lead-finder/",
+      "output": "PostgreSQL leads table + vault/leads/",
+      "next_task": "Qualify:{lead_id}",
+      "timeout_minutes": 120
+    },
+    {
+      "id": "routine-lead-intake",
+      "name": "Lead Intake Queue",
+      "trigger": "*/15 * * * *",
+      "trigger_human": "Every 15 minutes",
+      "agent": "LeadQualifier",
+      "description": "Process new vault/leads/ files and leads with status='new'. DeepSeek V3 ICP scoring (1-10) against icp-signals.md. Disqualify low-fit. Trigger voice call detection.",
+      "module": "modules/qualifier/",
+      "output": "leads.qual_score, leads.status",
+      "next_task": "Enrich:{lead_id} (if qualified)",
+      "timeout_minutes": 15
+    },
+    {
+      "id": "routine-email-send",
+      "name": "Email Send Queue",
+      "trigger": "*/30 * * * *",
+      "trigger_human": "Every 30 minutes",
+      "agent": "EmailWriter",
+      "description": "Send approved emails via Mailgun SMTP. A/B split tracked. Telegram approval gate before first send.",
+      "module": "modules/email-outreach/",
+      "output": "emails.status='sent', Mailgun API",
+      "escalation": "telegram_approval",
+      "timeout_minutes": 30
+    },
+    {
+      "id": "routine-reply-handler",
+      "name": "Reply Handler",
+      "trigger": "*/5 * * * *",
+      "trigger_human": "Every 5 minutes + webhook",
+      "agent": "ReplyHandler",
+      "description": "Classify incoming email replies via Mailgun webhook. 5-category: INTERESTED, OBJECTION, NOT_NOW, NO_FIT, AUTOMATED. 5-min SLA on INTERESTED detection.",
+      "module": "modules/reply-handler/",
+      "output": "emails.reply_sentiment, voice_calls (if INTERESTED)",
+      "sla_minutes": 5,
+      "timeout_minutes": 5
+    },
+    {
+      "id": "routine-voice-scheduler",
+      "name": "Voice Call Scheduler",
+      "trigger": "*/30 * * * *",
+      "trigger_human": "Every 30 minutes",
+      "agent": "VoiceCloser",
+      "description": "Check pending voice_calls. Initiate Asterisk SIP outbound via AMI. Google TTS for voice synthesis. Respect timezone windows (9am-6pm). Max 50 calls/day.",
+      "module": "modules/voice-closer/",
+      "output": "voice_calls.outcome, leads.voice_call_status",
+      "timeout_minutes": 30
+    },
+    {
+      "id": "routine-memory-analysis",
+      "name": "Weekly Memory Analysis",
+      "trigger": "0 23 * * 0",
+      "trigger_human": "Sunday 11pm",
+      "agent": "MemoryManager",
+      "description": "Full vault analysis. Update ICP signals. Improve email/call scripts based on performance data. Generate weekly-{date}.md report.",
+      "module": "modules/memory-manager/",
+      "output": "vault/patterns/weekly-{date}.md, icp-signals.md update",
+      "timeout_minutes": 60
+    },
+    {
+      "id": "routine-graphify-rebuild",
+      "name": "Daily Graphify Rebuild",
+      "trigger": "0 3 * * *",
+      "trigger_human": "Daily 3am",
+      "agent": "LeadFinder",
+      "description": "Full workspace knowledge graph rebuild via 'graphify update .' Keeps graph current with code changes.",
+      "command": "cd D:/ALZEN && graphify update .",
+      "timeout_minutes": 30
+    },
+    {
+      "id": "routine-budget-report",
+      "name": "Budget Report",
+      "trigger": "0 9 * * 1",
+      "trigger_human": "Monday 9am",
+      "agent": "ALZEN_CEO",
+      "description": "Weekly spend + pipeline performance report → Telegram operator. Cost tracking: DeepSeek API only.",
+      "output": "Telegram message",
+      "timeout_minutes": 5
+    },
+    {
+      "id": "routine-health-check",
+      "name": "Health Check",
+      "trigger": "*/10 * * * *",
+      "trigger_human": "Every 10 minutes",
+      "command": "bash D:/ALZEN/scripts/monitoring/health-check.sh",
+      "description": "Verify all services: PostgreSQL, Redis, Paperclip, Graphify MCP, Graphify Browser. Log to logs/health.log.",
+      "timeout_minutes": 2
+    }
+  ]
+}
