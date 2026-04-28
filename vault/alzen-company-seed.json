@@ -1,0 +1,132 @@
+{
+  "company": {
+    "name": "ALZEN",
+    "description": "Enterprise Autonomous B2B Sales Closing Agency. 24/7 lead discovery, qualification, enrichment, email outreach, and AI voice closing. DeepSeek V3 powered. Zero-cost infrastructure stack.",
+    "budgetMonthlyCents": 1200,
+    "status": "active"
+  },
+  "agents": [
+    {
+      "name": "ALZEN_CEO",
+      "role": "ceo",
+      "title": "Chief Executive Officer",
+      "reportsTo": null,
+      "capabilities": "Strategy, milestone decomposition, budget oversight, governance escalation. DeepSeek V3 for reasoning.",
+      "budgetMonthlyCents": 0
+    },
+    {
+      "name": "SalesDirector",
+      "role": "manager",
+      "title": "Sales Director",
+      "reportsTo": "ALZEN_CEO",
+      "capabilities": "Coordinates full lead-to-close pipeline. Pipeline analytics, A/B testing oversight, team coordination.",
+      "budgetMonthlyCents": 0
+    },
+    {
+      "name": "LeadFinder",
+      "role": "engineer",
+      "title": "Lead Discovery Agent",
+      "reportsTo": "SalesDirector",
+      "capabilities": "Web scraping (Playwright + BeautifulSoup), public API aggregation (Angel List, Crunchbase, Product Hunt), email pattern matching, job board monitoring, funding announcement RSS scraping. Target: 300-500 leads/day.",
+      "budgetMonthlyCents": 200
+    },
+    {
+      "name": "LeadQualifier",
+      "role": "engineer",
+      "title": "Lead Qualification Agent",
+      "reportsTo": "SalesDirector",
+      "capabilities": "DeepSeek V3 ICP scoring (1-10). Reads vault/patterns/icp-signals.md. Disqualifies low-fit leads. Voice trigger detection for high-intent prospects.",
+      "budgetMonthlyCents": 200
+    },
+    {
+      "name": "EnrichmentAnalyst",
+      "role": "engineer",
+      "title": "Enrichment Research Agent",
+      "reportsTo": "SalesDirector",
+      "capabilities": "Deep research per qualified lead. Extracts 3 pain points with evidence, buying signals, decision-maker profile, recommended email angle, and 30-second cold call opener. DeepSeek V3 powered.",
+      "budgetMonthlyCents": 200
+    },
+    {
+      "name": "EmailWriter",
+      "role": "engineer",
+      "title": "Email Outreach Agent",
+      "reportsTo": "SalesDirector",
+      "capabilities": "A/B cold email drafting via DeepSeek V3. Sub-120 and sub-160 word variants. Mailgun SMTP integration. Subject line optimization. Approval gate: Telegram to operator.",
+      "budgetMonthlyCents": 200
+    },
+    {
+      "name": "VoiceCloser",
+      "role": "engineer",
+      "title": "Voice Closing Agent",
+      "reportsTo": "SalesDirector",
+      "capabilities": "Asterisk SIP outbound calls. Google Cloud TTS voice synthesis (Alex persona — Harvey Specter + Andrew Tate). 40-branch objection tree. DTMF input handling. Call recording. Deal value capture.",
+      "budgetMonthlyCents": 200
+    },
+    {
+      "name": "ReplyHandler",
+      "role": "engineer",
+      "title": "Reply Classification Agent",
+      "reportsTo": "SalesDirector",
+      "capabilities": "Mailgun webhook receiver. 5-category reply classification (INTERESTED, OBJECTION, NOT_NOW, NO_FIT, AUTOMATED). 5-minute SLA. INTERESTED replies trigger immediate voice call creation.",
+      "budgetMonthlyCents": 200
+    },
+    {
+      "name": "MemoryManager",
+      "role": "engineer",
+      "title": "Memory & Learning Agent",
+      "reportsTo": "ALZEN_CEO",
+      "capabilities": "Weekly vault analysis. ICP signal evolution. Email angle performance scoring. Objection pattern extraction. Closer script improvement. Runs Sunday 11pm. Writes to vault/patterns/weekly-{date}.md.",
+      "budgetMonthlyCents": 0
+    }
+  ],
+  "routines": [
+    {
+      "name": "Lead Discovery",
+      "trigger": "Daily 6am",
+      "agent": "LeadFinder",
+      "description": "Multi-source B2B lead discovery — web scraping, public APIs, job boards, funding RSS. Target: 300-500 new leads/day."
+    },
+    {
+      "name": "Lead Intake Queue",
+      "trigger": "Every 15min",
+      "agent": "LeadQualifier",
+      "description": "Process new vault/leads/ files. DeepSeek ICP scoring against icp-signals.md."
+    },
+    {
+      "name": "Email Send Queue",
+      "trigger": "Every 30min",
+      "agent": "EmailWriter",
+      "description": "Send approved emails via Mailgun SMTP. A/B split tracked."
+    },
+    {
+      "name": "Reply Handler",
+      "trigger": "Every 5min + webhook",
+      "agent": "ReplyHandler",
+      "description": "Classify incoming email replies. 5-min SLA on INTERESTED detection."
+    },
+    {
+      "name": "Voice Call Scheduler",
+      "trigger": "Every 30min",
+      "agent": "VoiceCloser",
+      "description": "Check pending voice_calls. Initiate Asterisk SIP outbound. Respect timezone windows."
+    },
+    {
+      "name": "Weekly Memory Analysis",
+      "trigger": "Sunday 11pm",
+      "agent": "MemoryManager",
+      "description": "Full vault analysis. Update ICP signals. Improve email/call scripts."
+    },
+    {
+      "name": "Daily Graphify Rebuild",
+      "trigger": "Daily 3am",
+      "agent": "LeadFinder",
+      "description": "Full workspace knowledge graph rebuild via graphify update."
+    },
+    {
+      "name": "Budget Report",
+      "trigger": "Monday 9am",
+      "agent": "ALZEN_CEO",
+      "description": "Weekly spend + pipeline performance → Telegram operator."
+    }
+  ]
+}
