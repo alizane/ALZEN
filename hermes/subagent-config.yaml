@@ -1,0 +1,57 @@
+# ALZEN V3.0 — Hermes Subagent Architecture (Phase 14)
+# 10 concurrent parallel workers, ephemeral workspace mode
+# Full subagent isolation — each agent is independent
+
+subagents:
+  enabled: true
+  isolation: full
+  max_concurrent: 10
+  workspace_mode: ephemeral
+  inherit_mcp: true
+  inherit_skills: true
+  write_results_to: "./vault/"
+  cost_tracking: per_subagent
+
+  # Timeout and retry
+  timeout_seconds: 300
+  max_retries: 2
+
+  # Cost limits per subagent
+  max_tokens_per_subagent: 2000
+  max_cost_per_subagent_cents: 1
+
+# 10-worker pool configuration
+worker_pool:
+  - id: worker-lead-finder
+    skill: lead-finder.md
+    max_concurrent: 2
+  - id: worker-qualifier
+    skill: lead-qualifier.md
+    max_concurrent: 2
+  - id: worker-enrichment
+    skill: enrichment-analyst.md
+    max_concurrent: 2
+  - id: worker-email
+    skill: email-writer.md
+    max_concurrent: 1
+  - id: worker-voice
+    skill: voice-closer.md
+    max_concurrent: 1
+  - id: worker-reply
+    skill: call-handler.md
+    max_concurrent: 1
+  - id: worker-objection
+    skill: objection-handler.md
+    max_concurrent: 1
+  - id: worker-ab-testing
+    skill: ab-testing.md
+    max_concurrent: 1
+  - id: worker-memory
+    skill: memory-manager.md
+    max_concurrent: 1
+  - id: worker-campaign
+    skill: call-campaign-manager.md
+    max_concurrent: 1
+
+# Module independence: workers communicate ONLY via PostgreSQL + Paperclip tasks
+# Never import from one worker's module into another
