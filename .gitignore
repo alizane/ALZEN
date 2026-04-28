@@ -9,6 +9,10 @@ venv/
 logs/*.log
 graphify-out/cache/
 graphify-out/graph.json
+graphify/cache/
+graphify/graph.json
+exports/*
+!exports/.gitkeep
 vault/.obsidian/
 vault/leads/*
 vault/enrichments/*
